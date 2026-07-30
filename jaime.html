@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#fff7f8" />
+  <title>Protocolo Jaime ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .jaime-shell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .jaime-card {
+      width: min(520px, 100%);
+      padding: 36px 24px;
+      border-radius: 30px;
+      text-align: center;
+    }
+    .big-heart { font-size: 3.4rem; margin-bottom: 14px; }
+    .jaime-card p { color: var(--muted); line-height: 1.6; }
+    .jaime-card .primary-btn { margin-top: 14px; width: 100%; }
+    #status { min-height: 24px; font-weight: 700; color: var(--accent-dark); }
+  </style>
+</head>
+<body>
+  <main class="jaime-shell">
+    <section class="jaime-card card">
+      <div class="big-heart">🆘❤️</div>
+      <span class="eyebrow">PROTOCOLO SECRETO</span>
+      <h1 style="font-size:clamp(2.4rem,10vw,4rem)">Necesito a Bel.</h1>
+      <p>
+        Para situaciones de extrema gravedad que requieran mimos,
+        abrazos o simplemente tener a Bel cerca.
+      </p>
+      <button id="notifyBel" class="primary-btn">Avisar a Bel 🚨</button>
+      <p id="status"></p>
+    </section>
+  </main>
+
+  <script>
+    const button = document.getElementById("notifyBel");
+    const status = document.getElementById("status");
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      status.textContent = "Contactando con Bel... ❤️";
+
+      try {
+        const response = await fetch("/api/asistencia", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ target: "bel" }),
+        });
+
+        if (!response.ok) throw new Error();
+
+        status.textContent = "🚨 Bel ha sido avisada. Operación mimos en marcha.";
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+      } catch {
+        status.textContent = "⚠️ Las notificaciones todavía no están configuradas.";
+      } finally {
+        setTimeout(() => { button.disabled = false; }, 3500);
+      }
+    });
+  </script>
+</body>
+</html>
