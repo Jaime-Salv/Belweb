@@ -8,12 +8,134 @@ const $s = (q) => document.querySelector(q);
 let currentUser = null;
 let currentMember = null;
 let members = [];
+let bootSequence = 0;
 
 function status(message, error = false) {
   const el = $s('#authStatus');
   if (!el) return;
   el.textContent = message;
   el.style.color = error ? '#a52a45' : '';
+}
+
+function installDailyBackgroundStyles() {
+  if (document.querySelector('#daily-background-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'daily-background-styles';
+  style.textContent = `
+    body.has-daily-memory-background {
+      background: transparent !important;
+    }
+    #dailyMemoryBackground,
+    #dailyMemoryOverlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    #dailyMemoryBackground {
+      z-index: -3;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      transform: scale(1.035);
+      filter: blur(2px);
+      opacity: 0;
+      transition: opacity 1.1s ease;
+    }
+    #dailyMemoryBackground.visible {
+      opacity: 1;
+    }
+    #dailyMemoryOverlay {
+      z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(255,248,249,.76), rgba(255,248,249,.90)),
+        radial-gradient(circle at top left, rgba(255,232,237,.40), transparent 35%);
+      backdrop-filter: blur(1px);
+    }
+    body.has-daily-memory-background .card,
+    body.has-daily-memory-background .top-nav,
+    body.has-daily-memory-background .gallery-card,
+    body.has-daily-memory-background .capsule-card,
+    body.has-daily-memory-background .shared-item,
+    body.has-daily-memory-background .action-card,
+    body.has-daily-memory-background .letter-card {
+      backdrop-filter: blur(18px);
+    }
+    @media (max-width: 600px) {
+      #dailyMemoryBackground { filter: blur(1px); }
+      #dailyMemoryOverlay {
+        background: linear-gradient(180deg, rgba(255,248,249,.80), rgba(255,248,249,.93));
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function ensureDailyBackgroundLayers() {
+  installDailyBackgroundStyles();
+  let background = document.querySelector('#dailyMemoryBackground');
+  let overlay = document.querySelector('#dailyMemoryOverlay');
+  if (!background) {
+    background = document.createElement('div');
+    background.id = 'dailyMemoryBackground';
+    document.body.prepend(background);
+  }
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'dailyMemoryOverlay';
+    document.body.insertBefore(overlay, background.nextSibling);
+  }
+  return background;
+}
+
+function madridDateKey() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function hashText(value) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+async function loadDailyBackground() {
+  const { data: photos, error } = await supabase
+    .from('gallery_media')
+    .select('id,storage_path,memory_date,created_at')
+    .eq('media_type', 'image')
+    .order('memory_date', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  if (error || !photos?.length) {
+    document.body.classList.remove('has-daily-memory-background');
+    return;
+  }
+
+  const dateKey = madridDateKey();
+  const selected = photos[hashText(dateKey) % photos.length];
+  const { data: signed, error: signedError } = await supabase.storage
+    .from('couple-gallery')
+    .createSignedUrl(selected.storage_path, 60 * 60 * 25);
+
+  if (signedError || !signed?.signedUrl) return;
+
+  const background = ensureDailyBackgroundLayers();
+  const preload = new Image();
+  preload.onload = () => {
+    background.style.backgroundImage = `url("${signed.signedUrl.replaceAll('"', '%22')}")`;
+    document.body.classList.add('has-daily-memory-background');
+    requestAnimationFrame(() => background.classList.add('visible'));
+  };
+  preload.src = signed.signedUrl;
 }
 
 async function signUp() {
@@ -41,6 +163,7 @@ async function signIn() {
 async function signOut() { await supabase.auth.signOut(); }
 
 async function bootSession(session) {
+  const sequence = ++bootSequence;
   if (!session?.user) {
     currentUser = null;
     currentMember = null;
@@ -50,25 +173,43 @@ async function bootSession(session) {
   }
 
   currentUser = session.user;
+  status('Comprobando acceso...');
   const { data: member, error } = await supabase
     .from('couple_members')
     .select('id, display_name')
     .eq('id', currentUser.id)
     .maybeSingle();
 
-  if (error || !member) {
-    await supabase.auth.signOut();
+  if (sequence !== bootSequence) return;
+  if (error) {
+    status('No se pudo comprobar el acceso. Recarga la página en unos segundos.', true);
+    return;
+  }
+  if (!member) {
     status('Este correo no está autorizado para acceder a este espacio.', true);
     return;
   }
 
   currentMember = member;
-  const { data: allMembers } = await supabase.from('couple_members').select('id, display_name');
+  const { data: allMembers, error: membersError } = await supabase
+    .from('couple_members')
+    .select('id, display_name');
+  if (membersError) {
+    status('No se pudieron cargar los miembros del espacio.', true);
+    return;
+  }
   members = allMembers || [];
   $s('#sessionName').textContent = currentMember.display_name;
   $s('#authGate').classList.add('hidden');
   $s('#privateApp').classList.remove('hidden');
-  await Promise.all([loadCapsules(), loadSimpleList('travel'), loadSimpleList('food'), loadGallery()]);
+  status('');
+  await Promise.all([
+    loadCapsules(),
+    loadSimpleList('travel'),
+    loadSimpleList('food'),
+    loadGallery(),
+    loadDailyBackground()
+  ]);
 }
 
 function memberName(id) { return members.find(m => m.id === id)?.display_name || 'Nosotros'; }
@@ -177,7 +318,7 @@ async function uploadMedia(event) {
   const { error } = await supabase.from('gallery_media').insert({uploaded_by:currentUser.id,media_type:file.type.startsWith('video/')?'video':'image',storage_path:path,title,description:$s('#mediaDescription').value.trim(),memory_date:memoryDate,favorite:$s('#mediaFavorite').checked});
   if (error) { await supabase.storage.from('couple-gallery').remove([path]); return statusEl.textContent=error.message; }
   statusEl.textContent='Recuerdo guardado ❤️';
-  await loadGallery();
+  await Promise.all([loadGallery(), loadDailyBackground()]);
   setTimeout(()=>document.querySelector('[data-close-upload]')?.click(),600);
 }
 
@@ -192,12 +333,20 @@ async function requestAssistance(event) {
 }
 
 function showSharedModal(icon,title,text){
-  $s('#modalIcon').textContent=icon; $s('#modalTitle').textContent=title; $s('#modalText').innerHTML=whatsappItalics(text); $s('#modal').classList.remove('hidden');
+  $s('#modalIcon').textContent=icon;
+  $s('#modalTitle').textContent=title;
+  $s('#modalText').innerHTML=whatsappItalics(text);
+  $s('#modal').classList.remove('hidden');
 }
+
 function showSharedMedia(item){
-  const viewer=$s('#mediaViewer'); if(!viewer) return;
+  const viewer=$s('#mediaViewer');
+  if(!viewer) return;
   $s('#viewerMedia').innerHTML=item.type==='video'?`<video class="media-content expanded" src="${item.url}" controls autoplay></video>`:`<img class="media-content expanded" src="${item.url}" alt="${escapeHtml(item.title)}">`;
-  $s('#viewerTitle').textContent=item.title; $s('#viewerDescription').innerHTML=whatsappItalics(item.description||''); $s('#viewerMeta').textContent=`${item.author} · ${new Date(item.memoryDate+'T12:00:00').toLocaleDateString('es-ES')}`; viewer.classList.remove('hidden');
+  $s('#viewerTitle').textContent=item.title;
+  $s('#viewerDescription').innerHTML=whatsappItalics(item.description||'');
+  $s('#viewerMeta').textContent=`${item.author} · ${new Date(item.memoryDate+'T12:00:00').toLocaleDateString('es-ES')}`;
+  viewer.classList.remove('hidden');
 }
 
 function openUploadUi(){ $s('#uploadModal')?.classList.remove('hidden'); document.body.style.overflow='hidden'; }
@@ -216,6 +365,8 @@ $s('#addFoodBtn')?.addEventListener('click', e => addSimple('food', e), true);
 $s('#saveMediaBtn')?.addEventListener('click', uploadMedia, true);
 $s('#startBtn')?.addEventListener('click', requestAssistance, true);
 
-supabase.auth.onAuthStateChange((_event, session) => bootSession(session));
+supabase.auth.onAuthStateChange((_event, session) => {
+  window.setTimeout(() => bootSession(session), 0);
+});
 const { data: { session } } = await supabase.auth.getSession();
 await bootSession(session);
