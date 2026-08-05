@@ -89,7 +89,7 @@ async function sendAssistancePush() {
   const{data:members,error}=await supabasePush.from('couple_members').select('id,display_name');if(error)return;
   const me=members.find(member=>member.id===session.user.id);const other=members.find(member=>member.id!==session.user.id);if(!me||!other)return;
   try {
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/send-push`,{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_KEY,authorization:`Bearer ${session.access_token}`},body:JSON.stringify({targetUserId:other.id,title:'Bel & Jaime ❤️',message:`🚨 ${me.display_name.toUpperCase()} NECESITA ASISTENCIA MIMAL`,url:'/#emergencySection',tag:'asistencia-mimal'})});
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/send-push`,{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_KEY,authorization:`Bearer ${session.access_token}`},body:JSON.stringify({targetUserId:other.id,title:'Bel & Jaime ❤️',message:`🚨 ${me.display_name.toUpperCase()} NECESITA ASISTENCIA MIMAL`,url:'/#emergencias',tag:'asistencia-mimal'})});
     if(!response.ok)console.error('Error al enviar push:',await response.text());
   } catch(error){console.error('No se pudo enviar el push:',error);}
 }
@@ -99,5 +99,6 @@ const assistanceButton=document.querySelector('#startBtn');assistanceButton?.add
 supabasePush.auth.onAuthStateChange((_event,session)=>{currentSession=session;setTimeout(updateButtonState,0);});
 const{data:{session}}=await supabasePush.auth.getSession();currentSession=session;await updateButtonState();
 
-const enhancementCss=document.createElement('link');enhancementCss.rel='stylesheet';enhancementCss.href='/enhancements.css';document.head.appendChild(enhancementCss);
+for (const href of ['/enhancements.css','/cajita.css']) { const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.appendChild(link); }
 import('./enhancements.js').catch(error=>console.error('No se pudieron cargar las mejoras:',error));
+import('./cajita-app.js').catch(error=>console.error('No se pudo abrir la cajita:',error));
