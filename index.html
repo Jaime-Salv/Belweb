@@ -12,17 +12,36 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <section id="authGate" class="auth-gate">
+    <div class="auth-card card">
+      <div class="modal-icon">❤️</div>
+      <span class="eyebrow">ESPACIO PRIVADO</span>
+      <h1>Bel & Jaime</h1>
+      <p>Entra con uno de vuestros dos correos para acceder a los recuerdos compartidos.</p>
+      <label class="field-label" for="authEmail">Correo</label>
+      <input id="authEmail" class="field-control" type="email" autocomplete="email" placeholder="vuestro@email.com">
+      <label class="field-label" for="authPassword">Contraseña</label>
+      <input id="authPassword" class="field-control" type="password" autocomplete="current-password" minlength="8" placeholder="Mínimo 8 caracteres">
+      <div class="auth-actions">
+        <button id="signInBtn" class="primary-btn">Entrar</button>
+        <button id="signUpBtn" class="secondary-btn">Crear cuenta</button>
+      </div>
+      <p id="authStatus" class="form-status" aria-live="polite"></p>
+    </div>
+  </section>
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
 
-  <main class="app-shell">
+  <main id="privateApp" class="app-shell hidden">
 
   <nav class="top-nav">
     <a href="#emergencySection">❤️ Emergencias</a>
     <a href="#capsulesSection">⏳ Cápsulas</a>
+    <a href="#gallerySection">📷 Galería</a>
     <a href="#travelSection">✈️ Viajes</a>
     <a href="#foodSection">🍽️ Comer</a>
     <a href="#timelineSection">📸 Recuerdos</a>
+    <div class="session-chip"><span id="sessionName"></span><button id="signOutBtn">Salir</button></div>
   </nav>
 
     <section class="hero card">
@@ -38,186 +57,56 @@
       </div>
       <div class="status-pill">
         <span class="status-dot"></span>
-        Jaime disponible para emergencias emocionales
+        Asistencia emocional disponible
       </div>
       <button id="startBtn" class="primary-btn">Necesito asistencia</button>
     </section>
 
     <section id="emergencySection" class="section hidden">
-      <div class="section-heading">
-        <span>PROTOCOLO DE EMERGENCIA</span>
-        <h2>¿Qué necesitas ahora mismo?</h2>
-      </div>
-
+      <div class="section-heading"><span>PROTOCOLO DE EMERGENCIA</span><h2>¿Qué necesitas ahora mismo?</h2></div>
       <div class="actions-grid">
-        <button class="action-card" data-action="badDay">
-          <span class="icon">😔</span>
-          <strong>Estoy teniendo un día malo</strong>
-          <small>Activar protocolo antidesastre</small>
-        </button>
-
-        <button class="action-card" data-action="affection">
-          <span class="icon">🥺</span>
-          <strong>Necesito cariño</strong>
-          <small>Dispensador oficial de mimos</small>
-        </button>
-
-        <button class="action-card" data-action="laugh">
-          <span class="icon">😂</span>
-          <strong>Hazme reír</strong>
-          <small>Humor de calidad discutible</small>
-        </button>
-
-        <button class="action-card" data-action="love">
-          <span class="icon">❤️</span>
-          <strong>Recuérdame que me quieres</strong>
-          <small>Pruebas científicas irrefutables</small>
-        </button>
-
-        <button class="action-card wide" data-action="surprise">
-          <span class="icon">🎲</span>
-          <strong>Dame una sorpresa</strong>
-          <small>Resultado completamente impredecible</small>
-        </button>
+        <button class="action-card" data-action="badDay"><span class="icon">😔</span><strong>Estoy teniendo un día malo</strong><small>Activar protocolo antidesastre</small></button>
+        <button class="action-card" data-action="affection"><span class="icon">🥺</span><strong>Necesito cariño</strong><small>Dispensador oficial de mimos</small></button>
+        <button class="action-card" data-action="laugh"><span class="icon">😂</span><strong>Hazme reír</strong><small>Humor de calidad discutible</small></button>
+        <button class="action-card" data-action="love"><span class="icon">❤️</span><strong>Recuérdame que me quieres</strong><small>Pruebas científicas irrefutables</small></button>
+        <button class="action-card wide" data-action="surprise"><span class="icon">🎲</span><strong>Dame una sorpresa</strong><small>Resultado completamente impredecible</small></button>
       </div>
     </section>
 
-    <section id="openWhenSection" class="section">
-      <div class="section-heading">
-        <span>CARTAS DIGITALES</span>
-        <h2>Ábreme cuando...</h2>
-        <p>Hay mensajes que no tienen fecha de caducidad.</p>
-      </div>
+    <section id="openWhenSection" class="section"><div class="section-heading"><span>CARTAS DIGITALES</span><h2>Ábreme cuando...</h2><p>Hay mensajes que no tienen fecha de caducidad.</p></div><div id="lettersGrid" class="letters-grid"></div></section>
 
-      <div id="lettersGrid" class="letters-grid"></div>
+    <section class="section"><div class="section-heading"><span>DATOS MUY SERIOS</span><h2>¿Cuánto te quiere Jaime?</h2></div><div class="love-meter card"><div class="meter-top"><span>Analizando sentimientos...</span><strong id="meterValue">0%</strong></div><div class="meter-track"><div id="meterFill" class="meter-fill"></div></div><button id="calculateLove" class="secondary-btn">Calcular científicamente</button><p id="meterResult" class="meter-result"></p></div></section>
+
+    <section id="timelineSection" class="section"><div class="section-heading"><span>NUESTRA HISTORIA</span><h2>Unas cuantas cosas que no cambiaría.</h2></div><div id="timeline" class="timeline"></div></section>
+
+    <section id="capsulesSection" class="section"><div class="section-heading"><span>PARA NUESTRO YO FUTURO</span><h2>Cápsulas del tiempo</h2><p>Mensajes escritos hoy para una versión futura de nosotros.</p></div><div class="capsule-toolbar"><button id="newCapsuleBtn" class="primary-btn">Crear una cápsula 💌</button><span class="privacy-note">🔒 El contenido real queda protegido hasta su fecha.</span></div><div id="capsulesGrid" class="capsules-grid"></div></section>
+
+    <section id="gallerySection" class="section">
+      <div class="section-heading gallery-heading-row"><div><span>NUESTROS RECUERDOS</span><h2>Galería de Bel & Jaime</h2><p>Fotos y vídeos que iremos guardando poco a poco.</p></div><button id="openUploadBtn" class="primary-btn">Subir recuerdo ＋</button></div>
+      <div id="galleryEmpty" class="gallery-empty"><div class="gallery-empty-icon">📷</div><h3>Todavía no hay recuerdos aquí</h3><p>Subid la primera foto o vídeo.</p></div>
+      <div id="featuredCarousel" class="featured-carousel hidden"><div class="carousel-stage"><button id="carouselPrev" class="carousel-arrow">‹</button><div id="carouselMedia" class="carousel-media"></div><button id="carouselNext" class="carousel-arrow">›</button></div><div class="carousel-caption"><div><span id="carouselMeta"></span><h3 id="carouselTitle"></h3><p id="carouselDescription"></p></div><span id="carouselCounter"></span></div></div>
+      <div class="gallery-controls hidden"><div class="gallery-tabs"><button class="gallery-filter active" data-gallery-filter="all">Todo</button><button class="gallery-filter" data-gallery-filter="image">Fotos</button><button class="gallery-filter" data-gallery-filter="video">Vídeos</button></div><select id="gallerySort" class="gallery-sort"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option></select></div>
+      <div id="galleryGrid" class="gallery-grid"></div><p id="galleryStatus" class="gallery-status"></p>
     </section>
 
-    <section class="section">
-      <div class="section-heading">
-        <span>DATOS MUY SERIOS</span>
-        <h2>¿Cuánto te quiere Jaime?</h2>
-      </div>
+    <section id="travelSection" class="section"><div class="section-heading"><span>NUESTRO MAPA PENDIENTE</span><h2>Próximos viajes</h2><p>Porque siempre tiene que haber algún sitio al que escaparnos.</p></div><div id="travelGrid" class="shared-list-grid"></div><div class="inline-add"><input id="travelInput" type="text" placeholder="Ej. Islandia, Japón, Roma..." /><button id="addTravelBtn" class="secondary-btn">Añadir destino</button></div></section>
 
-      <div class="love-meter card">
-        <div class="meter-top">
-          <span>Analizando sentimientos...</span>
-          <strong id="meterValue">0%</strong>
-        </div>
-        <div class="meter-track">
-          <div id="meterFill" class="meter-fill"></div>
-        </div>
-        <button id="calculateLove" class="secondary-btn">Calcular científicamente</button>
-        <p id="meterResult" class="meter-result"></p>
-      </div>
-    </section>
+    <section id="foodSection" class="section"><div class="section-heading"><span>ASUNTOS IMPORTANTES</span><h2>Sitios donde tenemos que comer</h2><p>Lista oficialmente prioritaria.</p></div><div id="foodGrid" class="shared-list-grid"></div><div class="inline-add"><input id="foodInput" type="text" placeholder="Restaurante, ciudad o tipo de comida..." /><button id="addFoodBtn" class="secondary-btn">Añadir sitio</button></div></section>
 
-    <section id="timelineSection" class="section">
-      <div class="section-heading">
-        <span>NUESTRA HISTORIA</span>
-        <h2>Unas cuantas cosas que no cambiaría.</h2>
-      </div>
-      <div id="timeline" class="timeline"></div>
-    </section>
-
-
-    <section id="capsulesSection" class="section">
-      <div class="section-heading">
-        <span>PARA NUESTRO YO FUTURO</span>
-        <h2>Cápsulas del tiempo</h2>
-        <p>Mensajes escritos hoy para una versión futura de nosotros.</p>
-      </div>
-
-      <div class="capsule-toolbar">
-        <button id="newCapsuleBtn" class="primary-btn">Crear una cápsula 💌</button>
-        <span class="privacy-note">🔒 El contenido real quedará protegido hasta su fecha.</span>
-      </div>
-
-      <div id="capsulesGrid" class="capsules-grid"></div>
-    </section>
-
-    <section id="travelSection" class="section">
-      <div class="section-heading">
-        <span>NUESTRO MAPA PENDIENTE</span>
-        <h2>Próximos viajes</h2>
-        <p>Porque siempre tiene que haber algún sitio al que escaparnos.</p>
-      </div>
-
-      <div id="travelGrid" class="shared-list-grid"></div>
-      <div class="inline-add">
-        <input id="travelInput" type="text" placeholder="Ej. Islandia, Japón, Roma..." />
-        <button id="addTravelBtn" class="secondary-btn">Añadir destino</button>
-      </div>
-    </section>
-
-    <section id="foodSection" class="section">
-      <div class="section-heading">
-        <span>ASUNTOS IMPORTANTES</span>
-        <h2>Sitios donde tenemos que comer</h2>
-        <p>Lista oficialmente prioritaria.</p>
-      </div>
-
-      <div id="foodGrid" class="shared-list-grid"></div>
-      <div class="inline-add">
-        <input id="foodInput" type="text" placeholder="Restaurante, ciudad o tipo de comida..." />
-        <button id="addFoodBtn" class="secondary-btn">Añadir sitio</button>
-      </div>
-    </section>
-
-    <footer>
-      <p>Hecho con demasiado cariño y una cantidad innecesaria de código.</p>
-      <p class="footer-heart">❤️</p>
-    </footer>
+    <footer><p>Hecho con demasiado cariño y una cantidad innecesaria de código.</p><p class="footer-heart">❤️</p></footer>
   </main>
 
-  <div id="modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" data-close-modal></div>
-    <div class="modal-card">
-      <button class="modal-close" data-close-modal aria-label="Cerrar">×</button>
-      <div id="modalIcon" class="modal-icon">❤️</div>
-      <h3 id="modalTitle">Mensaje</h3>
-      <p id="modalText"></p>
-      <div id="modalExtra"></div>
-      <button class="primary-btn compact" data-close-modal>Vale ❤️</button>
-    </div>
-  </div>
+  <div id="modal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><div class="modal-card"><button class="modal-close" data-close-modal>×</button><div id="modalIcon" class="modal-icon">❤️</div><h3 id="modalTitle">Mensaje</h3><p id="modalText"></p><div id="modalExtra"></div><button class="primary-btn compact" data-close-modal>Vale ❤️</button></div></div>
 
+  <div id="uploadModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-upload></div><div class="modal-card upload-form-card"><button class="modal-close" data-close-upload>×</button><div class="modal-icon">📷</div><h3>Guardar un recuerdo</h3><p class="form-intro">Subid una foto o un vídeo corto.</p><label class="field-label" for="mediaUploader">Foto o vídeo</label><label class="media-dropzone" for="mediaUploader"><input id="mediaUploader" type="file" accept="image/*,video/*" /><span class="media-dropzone-icon">＋</span><strong>Seleccionar archivo</strong><small>Máximo 60 MB.</small></label><div id="uploadPreview" class="upload-preview hidden"></div><label class="field-label" for="mediaTitle">Título</label><input id="mediaTitle" class="field-control" /><label class="field-label" for="mediaDescription">Pequeña historia</label><textarea id="mediaDescription" class="field-control" rows="4"></textarea><label class="field-label" for="mediaDate">Fecha</label><div class="date-field-wrapper"><input id="mediaDate" type="date" /></div><label class="check-row"><input id="mediaFavorite" type="checkbox" /><span>Destacar</span></label><button id="saveMediaBtn" class="primary-btn compact">Guardar recuerdo ❤️</button><p id="uploadFormStatus" class="form-status"></p></div></div>
 
-  <div id="capsuleModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" data-close-capsule></div>
-    <div class="modal-card capsule-form-card">
-      <button class="modal-close" data-close-capsule aria-label="Cerrar">×</button>
-      <div class="modal-icon">⏳</div>
-      <h3>Nueva cápsula</h3>
-      <p class="form-intro">Escribe algo que solo deberá abrirse cuando llegue el momento.</p>
+  <div id="mediaViewer" class="media-viewer hidden"><div class="media-viewer-backdrop" data-close-viewer></div><div class="media-viewer-content"><button class="media-viewer-close" data-close-viewer>×</button><div id="viewerMedia" class="viewer-media"></div><div class="viewer-copy"><span id="viewerMeta"></span><h3 id="viewerTitle"></h3><p id="viewerDescription"></p></div></div></div>
 
-      <label class="field-label">Para</label>
-      <select id="capsuleRecipient" class="field-control">
-        <option value="Bel">Bel</option>
-        <option value="Jaime">Jaime</option>
-      </select>
-
-      <label class="field-label">Título</label>
-      <input id="capsuleTitle" class="field-control" placeholder="Ej. Para nuestro aniversario" />
-
-      <label class="field-label">Mensaje</label>
-      <textarea id="capsuleMessage" class="field-control" rows="6" placeholder="_Mi Bel_, quiero que leas esto dentro de un año..."></textarea>
-
-      <label class="field-label">Fecha de apertura</label>
-      <input id="capsuleDate" class="field-control" type="date" />
-
-      <label class="check-row">
-        <input id="secretDate" type="checkbox" />
-        <span>Ocultar la fecha al destinatario</span>
-      </label>
-
-      <button id="saveCapsuleBtn" class="primary-btn compact">Guardar cápsula 🔒</button>
-      <p id="capsuleFormStatus" class="form-status"></p>
-    </div>
-  </div>
+  <div id="capsuleModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-capsule></div><div class="modal-card capsule-form-card"><button class="modal-close" data-close-capsule>×</button><div class="modal-icon">⏳</div><h3>Nueva cápsula</h3><p class="form-intro">Escribe algo que solo deberá abrirse cuando llegue el momento.</p><label class="field-label">Título</label><input id="capsuleTitle" class="field-control" /><label class="field-label">Mensaje</label><textarea id="capsuleMessage" class="field-control" rows="6"></textarea><label class="field-label">Fecha de apertura</label><input id="capsuleDate" class="field-control" type="date" /><label class="check-row"><input id="secretDate" type="checkbox" /><span>Ocultar la fecha al destinatario</span></label><button id="saveCapsuleBtn" class="primary-btn compact">Guardar cápsula 🔒</button><p id="capsuleFormStatus" class="form-status"></p></div></div>
 
   <canvas id="confettiCanvas"></canvas>
-
   <script src="config.js"></script>
   <script src="app.js"></script>
+  <script type="module" src="supabase-app.js"></script>
 </body>
 </html>
