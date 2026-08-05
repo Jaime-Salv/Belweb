@@ -180,10 +180,11 @@ async function sendAssistancePush() {
   if (!me || !other) return;
 
   try {
-    await fetch('/api/send-push', {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        apikey: SUPABASE_KEY,
         authorization: `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
@@ -194,6 +195,10 @@ async function sendAssistancePush() {
         tag: 'asistencia-mimal'
       })
     });
+
+    if (!response.ok) {
+      console.error('Error al enviar push:', await response.text());
+    }
   } catch (error) {
     console.error('No se pudo enviar el push:', error);
   }
