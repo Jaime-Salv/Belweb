@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="supabase.css" />
+  <link rel="stylesheet" href="login-auth.css?v=2" />
 </head>
 <body>
   <section id="authGate" class="auth-gate">
@@ -25,10 +26,18 @@
       <label class="field-label" for="authEmail">Correo</label>
       <input id="authEmail" class="field-control" type="email" autocomplete="email" placeholder="vuestro@email.com">
       <label class="field-label" for="authPassword">Contraseña</label>
-      <input id="authPassword" class="field-control" type="password" autocomplete="current-password" minlength="8" placeholder="Mínimo 8 caracteres">
+      <div class="password-input-row">
+        <input id="authPassword" class="field-control" type="password" autocomplete="current-password" minlength="8" placeholder="Mínimo 8 caracteres">
+        <button id="toggleLoginPassword" class="password-toggle-btn" type="button">Mostrar</button>
+      </div>
       <div class="auth-actions">
         <button id="signInBtn" class="primary-btn">Entrar</button>
         <button id="signUpBtn" class="secondary-btn">Crear cuenta</button>
+      </div>
+      <div class="auth-helper-actions">
+        <button id="openPasswordResetBtn" class="auth-helper-btn" type="button">🔑 No tengo / olvidé mi contraseña</button>
+        <button id="sendMagicLinkBtn" class="auth-helper-btn" type="button">✉️ Entrar con enlace mágico</button>
+        <p class="auth-helper-note">Puedes crear una contraseña nueva aunque nunca hayas tenido una.</p>
       </div>
       <p id="authStatus" class="form-status" aria-live="polite"></p>
     </div>
@@ -81,9 +90,34 @@
   <div id="uploadModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-upload></div><div class="modal-card upload-form-card"><button class="modal-close" data-close-upload>×</button><div class="modal-icon">📷</div><h3>Guardar un recuerdo</h3><p class="form-intro">Subid una foto o un vídeo corto.</p><label class="field-label" for="mediaUploader">Foto o vídeo</label><label class="media-dropzone" for="mediaUploader"><input id="mediaUploader" type="file" accept="image/*,video/*" /><span class="media-dropzone-icon">＋</span><strong>Seleccionar archivo</strong><small>Máximo 60 MB.</small></label><div id="uploadPreview" class="upload-preview hidden"></div><label class="field-label" for="mediaTitle">Título</label><input id="mediaTitle" class="field-control" /><label class="field-label" for="mediaDescription">Pequeña historia</label><textarea id="mediaDescription" class="field-control" rows="4"></textarea><label class="field-label" for="mediaDate">Fecha</label><div class="date-field-wrapper"><input id="mediaDate" type="date" /></div><label class="check-row"><input id="mediaFavorite" type="checkbox" /><span>Destacar</span></label><button id="saveMediaBtn" class="primary-btn compact">Guardar recuerdo ❤️</button><p id="uploadFormStatus" class="form-status"></p></div></div>
   <div id="mediaViewer" class="media-viewer hidden"><div class="media-viewer-backdrop" data-close-viewer></div><div class="media-viewer-content"><button class="media-viewer-close" data-close-viewer>×</button><div id="viewerMedia" class="viewer-media"></div><div class="viewer-copy"><span id="viewerMeta"></span><h3 id="viewerTitle"></h3><p id="viewerDescription"></p></div></div></div>
   <div id="capsuleModal" class="modal hidden" aria-hidden="true"><div class="modal-backdrop" data-close-capsule></div><div class="modal-card capsule-form-card"><button class="modal-close" data-close-capsule>×</button><div class="modal-icon">⏳</div><h3>Nueva cápsula</h3><p class="form-intro">Escribe algo que solo deberá abrirse cuando llegue el momento.</p><label class="field-label">Título</label><input id="capsuleTitle" class="field-control" /><label class="field-label">Mensaje</label><textarea id="capsuleMessage" class="field-control" rows="6"></textarea><label class="field-label">Fecha de apertura</label><input id="capsuleDate" class="field-control" type="date" /><label class="check-row"><input id="secretDate" type="checkbox" /><span>Ocultar la fecha al destinatario</span></label><button id="saveCapsuleBtn" class="primary-btn compact">Guardar cápsula 🔒</button><p id="capsuleFormStatus" class="form-status"></p></div></div>
+
+  <div id="passwordResetOverlay" class="password-reset-overlay hidden" aria-hidden="true">
+    <div class="password-reset-card" role="dialog" aria-modal="true" aria-labelledby="passwordResetTitle">
+      <button id="closePasswordResetBtn" class="password-reset-close" type="button" aria-label="Cerrar">×</button>
+      <div class="modal-icon">🔑</div>
+      <span class="eyebrow">ACCESO A VUESTRA CAJITA</span>
+      <h2 id="passwordResetTitle">Crear o recuperar contraseña</h2>
+      <p id="passwordResetIntro">Te enviaremos un enlace seguro a tu correo para que puedas crear una contraseña nueva.</p>
+      <div id="passwordResetEmailStep">
+        <label class="field-label" for="passwordResetEmail">Correo</label>
+        <input id="passwordResetEmail" class="field-control" type="email" autocomplete="email" placeholder="tu@email.com">
+        <div class="reset-actions"><button id="sendPasswordResetBtn" class="primary-btn" type="button">Enviar enlace para crear contraseña</button></div>
+      </div>
+      <div id="passwordResetNewStep" class="hidden">
+        <label class="field-label" for="newPassword">Nueva contraseña</label>
+        <div class="reset-password-field"><input id="newPassword" class="field-control" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres"><button id="toggleNewPassword" class="password-toggle-btn" type="button">Mostrar</button></div>
+        <label class="field-label" for="repeatNewPassword">Repite la contraseña</label>
+        <div class="reset-password-field"><input id="repeatNewPassword" class="field-control" type="password" autocomplete="new-password" minlength="8" placeholder="Repite la contraseña"><button id="toggleRepeatPassword" class="password-toggle-btn" type="button">Mostrar</button></div>
+        <div class="reset-actions"><button id="saveNewPasswordBtn" class="primary-btn" type="button">Guardar nueva contraseña</button></div>
+      </div>
+      <p id="passwordResetStatus" class="reset-status" aria-live="polite"></p>
+    </div>
+  </div>
+
   <canvas id="confettiCanvas"></canvas>
   <script src="config.js"></script>
   <script src="app.js"></script>
+  <script type="module" src="login-auth.js?v=2"></script>
   <script type="module" src="push-app.js"></script>
   <script type="module" src="supabase-app.js"></script>
 </body>
