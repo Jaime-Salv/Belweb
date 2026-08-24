@@ -102,3 +102,4 @@ const{data:{session}}=await supabasePush.auth.getSession();currentSession=sessio
 for (const href of ['/enhancements.css','/cajita.css']) { const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.appendChild(link); }
 import('./enhancements.js').catch(error=>console.error('No se pudieron cargar las mejoras:',error));
 import('./cajita-app.js').catch(error=>console.error('No se pudo abrir la cajita:',error));
+import('./auth-fix.js').catch(error=>console.error('No se pudo cargar la recuperación de contraseña:',error));
