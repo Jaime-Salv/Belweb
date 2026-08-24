@@ -1,18 +1,13 @@
 {
-  "name": "Bel & Jaime",
-  "short_name": "Bel & Jaime",
-  "description": "Nuestro espacio privado de recuerdos, cápsulas y asistencia mimal.",
-  "start_url": "/",
+  "name": "Nuestra cajita · Bel & Jaime",
+  "short_name": "Nuestra cajita",
+  "description": "Nuestro espacio privado de recuerdos, cápsulas, lugares y mensajes.",
+  "start_url": "/#home",
   "scope": "/",
   "display": "standalone",
   "background_color": "#fff7f8",
-  "theme_color": "#df5f77",
+  "theme_color": "#d85872",
   "icons": [
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    {"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }
